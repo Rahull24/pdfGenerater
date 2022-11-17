@@ -16,10 +16,23 @@ let fonts = {
 
 let pdfmake = new Pdfmake(fonts);
 
+app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post("/generatePdf", (req, res) => {
+app.get("/", function (req, res) {
+  res.render("pages/form");
+});
+
+app.get("/result", (req, res) => {
+  res.render("pages/result");
+});
+
+app.get("/confirm", (req, res) => {
+  res.render("pages/confirmation");
+});
+
+app.post("/", (req, res) => {
   const inputData = req.body.text;
   const imageLink = req.body.imageLink;
   let docDefination = {
@@ -55,7 +68,7 @@ app.post("/generatePdf", (req, res) => {
   pdfDoc.pipe(fs.createWriteStream("pdfs/myPdf.pdf"));
   pdfDoc.end();
 
-  res.json({ message: "done" });
+  res.redirect("/result");
 });
 
 app.post("/sendMail", (req, res) => {
@@ -87,7 +100,7 @@ app.post("/sendMail", (req, res) => {
       console.log("Error Occurs", err);
       res.statusCode(500).send("error occured");
     } else {
-      res.send("Email sent successfully");
+      res.redirect("/confirm");
     }
   });
 });
