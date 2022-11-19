@@ -2,6 +2,7 @@ const fs = require("fs");
 const Pdfmake = require("pdfmake");
 const express = require("express");
 const nodemailer = require("nodemailer");
+const searchRouter = require("./queryService/api/searchRoute");
 
 const app = express();
 
@@ -19,6 +20,8 @@ let pdfmake = new Pdfmake(fonts);
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/search", searchRouter);
 
 app.get("/", function (req, res) {
   res.render("pages/form");
@@ -104,6 +107,14 @@ app.post("/sendMail", (req, res) => {
     }
   });
 });
+
+app.use((err, req, res, next) => {
+  res
+    .status(err.statusCode || 500)
+    .json({ error: err.message || "Internal server error" });
+  next();
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
